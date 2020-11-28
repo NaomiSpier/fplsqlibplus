@@ -14,4 +14,4 @@ update by Naomi:
     - would not recommend with curved fit (hasn't been tested)
 - extra swag and many spelling errors
 
-Credits naar Hans en zijn gang, Janiek en mij 
+Credits naar Hans en zijn gang, Janiek, een van de Renskes en mij 
