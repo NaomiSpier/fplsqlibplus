@@ -13,3 +13,5 @@ update by Naomi:
     - automatically is calculated if xerr is given with non-GUI
     - would not recommend with curved fit (hasn't been tested)
 - extra swag and many spelling errors
+
+Credits naar Hans en zijn gang, Janiek en mij 
