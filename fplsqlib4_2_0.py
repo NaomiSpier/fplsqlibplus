@@ -96,7 +96,7 @@ from matplotlib.widgets import  SpanSelector
 from matplotlib.path import Path
 import matplotlib.patches as patches
 
-WEIGHTOPTIONS = ('none', 'relative', 'x-tra fout', 'standard deviation')
+WEIGHTOPTIONS = ('none', 'relative', 'relatief met x erbij', 'standard deviation')
 VERSION_INFO = 'FPLSQ versie 4.2.0 (very nice)'
 MODEL_NUMPOINTS = 1000
 rel_err= 1e-9           # error in the x weighted fit
@@ -473,7 +473,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.modelview.disable_weight()
         
         else:
-            self.modelview.set_weight('x-tra fout')
+            self.modelview.set_weight('relatief met x erbij')
         self.plotwidget.canvas.update_plot()
         
 
@@ -491,7 +491,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # creating the required widgets
         self.plotwidget = PlotWidget(self.data, self.xlabel, self.ylabel)  # holds the plot
         self.modelview = ModelView(self.model)  # shows the model and allows users to set fitproperties
-        self.fitbutton = QtWidgets.QPushButton('Activate getover!', clicked = self.fit) 
+        self.fitbutton = QtWidgets.QPushButton('Fit!', clicked = self.fit) 
         self.reportview = ReportView()  # shows the fitresults
                
         # create a frame with a vertical layout to organize the modelview, fitbutton and reportview
@@ -571,6 +571,11 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.showdialog(str(sys.exc_info()[1]))
 
             else:
+                if weighted == 'relatief met x erbij':
+                    weight = np.sqrt( ye**2 + xe**2 * fitpars[0]**2)
+                else:
+                    weight = ye
+                    
                 # update parameters of the model
                 stderrors = np.sqrt(np.diag(fitcov))
                 errors = stderrors * stats.t.ppf(0.975, dof)
@@ -590,7 +595,7 @@ class MainWindow(QtWidgets.QMainWindow):
                                                         },
                                 'FITRESULTS'            : self.model.pars_to_dict(), 
                                 'STATISTICS'            : {
-                                                            'Smin'               : sum( ((y - func(x, *fitpars))/ye)**2 )
+                                                            'Smin'               : sum( ((y - func(x, *fitpars))/weight)**2 )
                                                         }
                                 }
 
@@ -635,7 +640,7 @@ def curve_fit_wrapper(func, *pargs, p0=None, pF=None, jac=None, dx=None, weighte
     popt, cov = curve_fit(fit_func, *pargs, p0=p0_fit, jac=fit_jac, sigma=sigma, absolute_sigma=weighted=='standard deviation', **kwargs)
     
     # if chosen calculate the weigthed fit
-    if weighted=='x-tra fout':
+    if weighted=='relatief met x erbij':
         if dx is None:
             raise Exception("dumb-ass, je moet wel een x-fout geven. Ik kan die niet zomaar uit mijn reet toveren.")
         else:
@@ -724,7 +729,7 @@ def fplsqAB(xdata, ydata, yerr=None, xerr=None):
     elif xerr is None:
         weighted='relative'
     else:
-        weighted='x-tra fout'
+        weighted='relatief met x erbij'
     
     # estimate intial parameters
     slope = (ydata.max()-ydata.min())/(xdata.max()-xdata.min())
@@ -781,7 +786,7 @@ def fplsqA(xdata, ydata, yerr=None, xerr=None, offset=0):
     elif xerr is None:
         weighted='relative'
     else:
-        weighted='x-tra fout'
+        weighted='relatief met x erbij'
 
     func = lambda x, a, b: a*x + b
     par, cov = curve_fit_wrapper(func, xdata, ydata, p0=[slope, offset], pF=[False, True], sigma=yerr, weighted=weighted)
@@ -838,7 +843,7 @@ def fplsqB(xdata, ydata, slope, yerr=None, xerr=None):
     elif xerr is None:
         weighted='relative'
     else:
-        weighted='x-tra fout'
+        weighted='relatief met x erbij'
     
     par, cov = curve_fit_wrapper(func, xdata, ydata, p0=[slope, offset], pF=[True, False], sigma=yerr, weighted=weighted)
     t95 = get_t95(len(xdata),1)
